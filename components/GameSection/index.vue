@@ -4,7 +4,7 @@
     <v-row justify="center">
       <v-col cols="12" sm="8" md="3">
 
-        <game-filter :searchParams="searchParams" :orderBy="orderBy"/>
+        <game-filter :searchParams="searchParams" :orderBy="orderBy" :dynamicFilters="dynamicFilters"/>
 
       </v-col>
       <v-col cols="12" sm="8" md="9">
@@ -34,6 +34,8 @@ import GameList from "~/components/GameSection/GameList.vue";
 import {Game} from "~/types/game";
 import {OrderBy} from "~/types/OrderBy";
 import {SearchParams} from "~/types/SearchParams";
+import {FilterService} from "~/services/filter";
+import {Filter} from "~/types/filter";
 
 
 @Component({
@@ -53,6 +55,8 @@ export default class GameSection extends Vue {
     order: 'desc'
   }
 
+  public dynamicFilters:Filter[] = []
+
 
   get gameList():{games:Game[], name:String} {
     return (this.$store.state).games
@@ -61,16 +65,20 @@ export default class GameSection extends Vue {
 
     get filteredGames()
     {
-      let games:Game[] =  this.filterByName(this.filterByScore(this.gameList.games))
+      let filterService = new FilterService()
 
-      if (this.orderBy.title === 'Name')
-        return this.sortDataBykey(games, this.orderBy.order, 'name')
-      else if (this.orderBy.title === 'Score')
-        return this.sortDataBykey(games, this.orderBy.order, 'rating')
-      else if (this.orderBy.title === 'Release date')
-        return this.sortDataBykey(games, this.orderBy.order, 'first_release_date')
-      else
-        return games
+      return filterService.filterItems(this.gameList.games, this.dynamicFilters)
+
+      // let games:Game[] =  this.filterByName(this.filterByScore(this.gameList.games))
+      //
+      // if (this.orderBy.title === 'Name')
+      //   return this.sortDataBykey(games, this.orderBy.order, 'name')
+      // else if (this.orderBy.title === 'Score')
+      //   return this.sortDataBykey(games, this.orderBy.order, 'rating')
+      // else if (this.orderBy.title === 'Release date')
+      //   return this.sortDataBykey(games, this.orderBy.order, 'first_release_date')
+      // else
+      //   return games
     }
 
 
